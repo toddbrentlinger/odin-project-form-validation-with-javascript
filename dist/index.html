@@ -1,0 +1,41 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odin Project - Form Validation With JavaScript</title>
+</head>
+<body>
+    <script src="bundle.js"></script>
+
+    <form action="#" method="post" id="custom-form" novalidate>
+        <label for="email">
+            <span>Email</span>
+            <input type="email" name="email" id="email">
+            <span class="error" aria-live="polite"></span>
+        </label>
+        <label for="country">
+            <span>Country</span>
+            <input type="text" name="country" id="country">
+            <span class="error" aria-live="polite"></span>
+        </label>
+        <label for="zipcode">
+            <span>Zip Code</span>
+            <input type="text" name="zipcode" id="zipcode">
+            <span class="error" aria-live="polite"></span>
+        </label>
+        <label for="password">
+            <span>Password</span>
+            <input type="password" name="password" id="password">
+            <span class="error" aria-live="polite"></span>
+        </label>
+        <label for="password-confirm">
+            <span>Confirm Password</span>
+            <input type="password" name="password-confirm" id="password-confirm">
+            <span class="error" aria-live="polite"></span>
+        </label>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
