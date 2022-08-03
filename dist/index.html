@@ -7,7 +7,9 @@
     <title>Odin Project - Form Validation With JavaScript</title>
 </head>
 <body>
-    <script src="bundle.js"></script>
+    <script defer src="bundle.js"></script>
+
+    <h1>Odin Project - Form Validation with JavaScript</h1>
 
     <form action="#" method="post" id="custom-form" novalidate>
         <label for="email">
@@ -17,12 +19,12 @@
         </label>
         <label for="country">
             <span>Country</span>
-            <input type="text" name="country" id="country">
+            <input type="text" maxlength="100" name="country" id="country">
             <span class="error" aria-live="polite"></span>
         </label>
         <label for="zipcode">
             <span>Zip Code</span>
-            <input type="text" name="zipcode" id="zipcode">
+            <input type="text" pattern="[0-9]{5}" title="Enter 5-digit zip code." name="zipcode" id="zipcode">
             <span class="error" aria-live="polite"></span>
         </label>
         <label for="password">
