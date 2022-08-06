@@ -24,7 +24,7 @@
         </label>
         <label for="zipcode">
             <span>Zip Code</span>
-            <input type="text" pattern="[0-9]{5}" title="Enter 5-digit zip code." name="zipcode" id="zipcode">
+            <input type="text" pattern="^([0-9]{5})[-\s]?([0-9]{4}|)$" title="Enter 5-digit zip code." name="zipcode" id="zipcode">
             <span class="error" aria-live="polite"></span>
         </label>
         <label for="password">
