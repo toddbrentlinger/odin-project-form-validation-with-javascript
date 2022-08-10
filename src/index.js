@@ -28,34 +28,43 @@ import './styles.scss';
         };
 
         init() {
-            this.inputElement.addEventListener('blur', (e) => {
-                if (this.inputElement.validity.valid) {
-                    // Hide error
-                    this.errorElement.textContent = '';
-                    this.errorElement.className = 'error';
-                } else {
-                    // Show error
-                    this.showError();
-                }
-            }, false);
+            this.inputElement.addEventListener('blur', this.checkValidity.bind(this), false);
         }
 
-        showError() {
-            // Add each lised error if invalid
-            let outputText = Object.entries(this.errors) // Get [key, value] pairs of ERRORS in array
-                .filter(entry => this.inputElement.validity[entry[0]]) // Filter by invalid errors from input element
-                .map(entry => entry[1]) // Map to array of error messages to display
-                .join('\n'); // Join array of messages with newline separating them
+        checkValidity(e) {
+            let invalidStateArr = [];
+            if (!this.inputElement.validity.valid) {
+                invalidStateArr = Object.entries(this.errors) // Get [key, value] pairs of ERRORS in array
+                    .filter(entry => this.inputElement.validity[entry[0]]) // Filter by invalid errors from input element
+                    .map(entry => entry[1]) // Map to array of error messages to display
+            }
 
             if (this.customErrorHandler) {
                 const customErrorText = this.customErrorHandler(this.inputElement);
                 if (customErrorText) {
-                    outputText += `\n${customErrorText}`;
+                    invalidStateArr = invalidStateArr.concat(customErrorText);
                 }
             }
 
-            this.errorElement.textContent = outputText;
-            this.errorElement.className = 'error active';
+            // Clear error messages, if any
+            while (this.errorElement.firstElementChild) {
+                this.errorElement.firstElementChild.remove();
+            }
+
+            if (!invalidStateArr.length) {
+                // Sets input to :valid state for styling
+                this.inputElement.setCustomValidity('');
+
+                // Hide error
+                this.errorElement.className = 'error';
+            } else {
+                // Sets input to :invalid state for styling
+                this.inputElement.setCustomValidity(' ');
+
+                // Display error
+                this.errorElement.append(...invalidStateArr.map(invalidState => createElement('p', {}, invalidState)));
+                this.errorElement.className = 'error active';
+            }
         }
     }
 
@@ -105,7 +114,7 @@ import './styles.scss';
                 // Check if '.' is present
                 if (inputElement.value.includes('.')) {
                     // Check if valid characters before ('@' cannot be before '.')
-                    if (bSingleAtSymbol && /@./.test(inputElement.value)) {
+                    if (bSingleAtSymbol && /@\./.test(inputElement.value)) {
                         outputMessagesPerValidityState.push('Must not follow "@" symbol with "." symbol!');
                     }
                     // Check if valid characters after (any characters after are valid but must NOT end with '.' symbol)
@@ -122,7 +131,7 @@ import './styles.scss';
                 }
             }
 
-            return outputMessagesArr.join('\n');
+            return outputMessagesArr;
         }
 
         handleZipCodeValidation(inputElement) {
@@ -156,15 +165,64 @@ import './styles.scss';
                 }
             }
 
-            return outputMessagesArr.join('\n');
+            return outputMessagesArr;
         }
 
         handlePasswordValidation(inputElement) {
+            /** Password Requirements:
+             *  - Minimum 8 characters
+             *  - At least one uppercase letter
+             *  - At least one lowercase letter
+             *  - At least one special character
+             *  - At least one number
+             */
+            // Object to hold boolean value for each password validation
+            const validations = {};
+            const invalidMessageArr = [];
 
+            // Minimum 8 characters
+            validations.minChars = inputElement.value.length >= 8;
+            if (!validations.minChars) {
+                invalidMessageArr.push('Must have minimum 8 characters!');
+            }
+
+            // At least one uppercase letter
+            validations.uppercaseLetter = /[A-Z]/.test(inputElement.value);
+            if (!validations.uppercaseLetter) {
+                invalidMessageArr.push('Must have at least one uppercase letter!');
+            }
+
+            // At least one lowercase letter
+            validations.lowercaseLetter = /[a-z]/.test(inputElement.value);
+            if (!validations.lowercaseLetter) {
+                invalidMessageArr.push('Must have at least one lowercase letter!');
+            }
+
+            // At least one number
+            validations.number = /[0-9]/.test(inputElement.value);
+            if (!validations.number) {
+                invalidMessageArr.push('Must have at least one number!');
+            }
+
+            // At least one special character
+            validations.specialChar = /[~`!@#$%^&*()_\-+={[}\]|\:;"'<,>.?/]/.test(inputElement.value);
+            if (!validations.specialChar) {
+                invalidMessageArr.push('Must have at least one special character!');
+            }
+
+            console.log(invalidMessageArr);
+
+            return invalidMessageArr;
         }
 
         handlePasswordConfirmationValidaiton(passwordConfirmInputElement, passwordInputElement) {
+            let outputMessagesArr = [];
 
+            if (passwordConfirmInputElement.value !== passwordInputElement.value) {
+                outputMessagesArr.push('Passwords do NOT match!');
+            }
+
+            return outputMessagesArr;
         }
 
         init() {
@@ -194,7 +252,15 @@ import './styles.scss';
                         customErrorHandler = this.handleZipCodeValidation.bind(this);
                         break;
                     case 'password':
+                        customErrorHandler = this.handlePasswordValidation.bind(this);
+                        break;
                     case 'password-confirm':
+                        customErrorHandler = (passwordConfirmInputElement) => {
+                            return this.handlePasswordConfirmationValidaiton(
+                                passwordConfirmInputElement, 
+                                this.element.querySelector('input[name="password"]')
+                            );
+                        };
                         break;
                     default:
                 }
