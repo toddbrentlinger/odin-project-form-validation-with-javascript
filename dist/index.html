@@ -32,6 +32,23 @@
             <input type="password" name="password" id="password">
             <span class="error" aria-live="polite"></span>
         </label>
+        <div id="password-required-states">
+            <div class="password-required-state-item" data-required-state="minChars">
+                <span class="password-required-state-item-message">Minimum 8 characters</span>
+            </div>
+            <div class="password-required-state-item" data-required-state="uppercaseLetter">
+                <span class="password-required-state-item-message">At least one uppercase letter</span>
+            </div>
+            <div class="password-required-state-item" data-required-state="lowercaseLetter">
+                <span class="password-required-state-item-message">At least one lowercase letter</span>
+            </div>
+            <div class="password-required-state-item" data-required-state="number">
+                <span class="password-required-state-item-message">At least one number</span>
+            </div>
+            <div class="password-required-state-item" data-required-state="specialChar">
+                <span class="password-required-state-item-message">At least one special character</span>
+            </div>
+        </div>
         <label for="password-confirm">
             <span>Confirm Password</span>
             <input type="password" name="password-confirm" id="password-confirm">

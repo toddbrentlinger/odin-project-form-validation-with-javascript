@@ -1,7 +1,8 @@
 :root {
     --base-white: hsl(0, 0%, 95%);
     --base-black: hsl(0, 0%, 10%);
-    --base-error: #900;
+    --base-success: #008000;
+    --base-fail: #900;
 }
 
 html {
@@ -53,7 +54,7 @@ h1 {
         }
 
         &:invalid {
-            border: 2px solid var(--base-error, red);
+            border: 2px solid var(--base-fail, red);
         }
     }
 
@@ -62,12 +63,39 @@ h1 {
         padding: 0; // Non-zero padding would show up with empty textContent
         font-size: 80%;
         color: var(--base-white, white);
-        background-color: var(--base-error, red);
+        background-color: var(--base-fail, red);
         border-radius: 0 0 5px 5px;
         box-sizing: border-box;
     }
     
     .error.active {
         padding: 0.3em;
+    }
+
+    #password-required-states {
+        .password-required-state-item {
+            padding: 0.2em 0.5em;
+            background-color: red;
+
+            .password-required-state-item-message {
+                display: block;
+                
+                &::before {
+                    content: '\2715';
+                    padding-right: 0.5em;
+                }
+            }
+
+            &.valid {
+                background-color: green;
+
+                .password-required-state-item-message {
+
+                    &::before {
+                        content: '\2713';
+                    }
+                }
+            }
+        }
     }
 }

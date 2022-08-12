@@ -28,7 +28,7 @@ import './styles.scss';
         };
 
         init() {
-            this.inputElement.addEventListener('blur', this.checkValidity.bind(this), false);
+            this.inputElement.addEventListener('input', this.checkValidity.bind(this), false);
         }
 
         checkValidity(e) {
@@ -210,6 +210,12 @@ import './styles.scss';
                 invalidMessageArr.push('Must have at least one special character!');
             }
 
+            if (invalidMessageArr) {
+                inputElement.setCustomValidity(' ');
+            }
+
+            this.updatePasswordRequiredStatesElement(validations);
+
             console.log(invalidMessageArr);
 
             return invalidMessageArr;
@@ -225,47 +231,95 @@ import './styles.scss';
             return outputMessagesArr;
         }
 
-        init() {
-            this.element.querySelectorAll('label').forEach(formLabel => {
-                let errors = {};
-                let customErrorHandler;
-                switch (formLabel.querySelector('input').name) {
-                    case 'email':
-                        errors = {
-                            //typeMismatch: 'Must be a valid email address!',
-                            valueMissing: 'Email required!',
-                        }
-                        customErrorHandler = this.handleEmailValidation.bind(this);
-                        break;
-                    case 'country':
-                        errors = {
-                            typeMismatch: 'Must be a valid country name!',
-                            valueMissing: 'Country required!',
-                            tooLong: 'Country name too long!',
-                        }
-                        break;
-                    case 'zipcode':
-                        errors = {
-                            //patternMismatch: 'Must be 5 digits followed by optional space or hyphen followed by optional 4 digits!',
-                            valueMissing: 'Zipcode required!',
-                        }
-                        customErrorHandler = this.handleZipCodeValidation.bind(this);
-                        break;
-                    case 'password':
-                        customErrorHandler = this.handlePasswordValidation.bind(this);
-                        break;
-                    case 'password-confirm':
-                        customErrorHandler = (passwordConfirmInputElement) => {
-                            return this.handlePasswordConfirmationValidaiton(
-                                passwordConfirmInputElement, 
-                                this.element.querySelector('input[name="password"]')
-                            );
-                        };
-                        break;
-                    default:
+        /**
+         * Updates element holding password required states given an object of key/value pairs with boolean value of a state validity.
+         * @param {Object} stateValidity - Keys are matching data attribute of message element and values are boolean of whether state is valid
+         */
+        updatePasswordRequiredStatesElement(stateValidity) {
+            // Return if NO element to display required states
+            if (!this.passwordRequiredStatesElement) return;
+
+            const requiredStatesElements = this.passwordRequiredStatesElement.querySelectorAll('.password-required-state-item');
+
+            requiredStatesElements.forEach(element => {
+                if (stateValidity[element.dataset.requiredState]) {
+                    element.classList.add('valid');
+                } else {
+                    element.classList.remove('valid');
                 }
-                new FormInput(formLabel, errors, customErrorHandler);
             });
+        }
+
+        init() {
+            // Password Required States
+            this.passwordRequiredStatesElement = document.getElementById('password-required-states');
+
+            // Email
+            const emailElement = this.element.querySelector('label[for="email"]');
+            if (emailElement) {
+                new FormInput(
+                    emailElement, 
+                    {
+                        //typeMismatch: 'Must be a valid email address!',
+                        valueMissing: 'Email required!',
+                    }, 
+                    this.handleEmailValidation.bind(this)
+                );
+            }
+
+            // Country
+            const countryElement = this.element.querySelector('label[for="country"]');
+            if (countryElement) {
+                new FormInput(
+                    countryElement, 
+                    {
+                        typeMismatch: 'Must be a valid country name!',
+                        valueMissing: 'Country required!',
+                        tooLong: 'Country name too long!',
+                    }
+                );
+            }
+
+            // Zipcode
+            const zipcodeElement = this.element.querySelector('label[for="zipcode"]');
+            if (zipcodeElement) {
+                new FormInput(
+                    zipcodeElement, 
+                    {
+                        //patternMismatch: 'Must be 5 digits followed by optional space or hyphen followed by optional 4 digits!',
+                        valueMissing: 'Zipcode required!',
+                    }, 
+                    this.handleZipCodeValidation.bind(this)
+                );
+            }
+
+            // Password
+            const passwordElement = this.element.querySelector('label[for="password"]');
+            if (passwordElement) {
+                new FormInput(
+                    passwordElement, 
+                    {}, 
+                    this.handlePasswordValidation.bind(this)
+                );
+            }
+
+            // Password Confirm
+            const passwordConfirmElement = this.element.querySelector('label[for="password-confirm"]');
+            if (passwordConfirmElement) {
+                new FormInput(
+                    passwordConfirmElement, 
+                    {
+                        //patternMismatch: 'Must be 5 digits followed by optional space or hyphen followed by optional 4 digits!',
+                        valueMissing: 'Zipcode required!',
+                    }, 
+                    (passwordConfirmInputElement) => {
+                        return this.handlePasswordConfirmationValidaiton(
+                            passwordConfirmInputElement, 
+                            this.element.querySelector('input[name="password"]')
+                        );
+                    }
+                );
+            }
         }
     }
     
