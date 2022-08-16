@@ -31,19 +31,30 @@ import './styles.scss';
             this.inputElement.addEventListener('input', this.checkValidity.bind(this), false);
         }
 
-        checkValidity(e) {
+        checkValidity() {
             let invalidStateArr = [];
+            let validObj = {};
+            
+            // Add invalid state messages from this.errors property
             if (!this.inputElement.validity.valid) {
                 invalidStateArr = Object.entries(this.errors) // Get [key, value] pairs of ERRORS in array
                     .filter(entry => this.inputElement.validity[entry[0]]) // Filter by invalid errors from input element
                     .map(entry => entry[1]) // Map to array of error messages to display
             }
 
+            // Add invalid state messages from custom error handler method
             if (this.customErrorHandler) {
-                const customErrorText = this.customErrorHandler(this.inputElement);
-                if (customErrorText) {
-                    invalidStateArr = invalidStateArr.concat(customErrorText);
+                validObj = this.customErrorHandler(this.inputElement);
+                if (!validObj.valid) {
+                    invalidStateArr = invalidStateArr.concat(validObj.invalidMsgArr);
                 }
+            }
+
+            // Set input element valid state
+            if (invalidStateArr.length || (validObj.hasOwnProperty('valid') && !validObj.valid)) {
+                this.inputElement.setCustomValidity('invalid');
+            } else {
+                this.inputElement.setCustomValidity('');
             }
 
             // Clear error messages, if any
@@ -51,19 +62,14 @@ import './styles.scss';
                 this.errorElement.firstElementChild.remove();
             }
 
-            if (!invalidStateArr.length) {
-                // Sets input to :valid state for styling
-                this.inputElement.setCustomValidity('');
-
-                // Hide error
-                this.errorElement.className = 'error';
-            } else {
-                // Sets input to :invalid state for styling
-                this.inputElement.setCustomValidity(' ');
-
+            // Display/hide error messages
+            if (invalidStateArr.length) {
                 // Display error
                 this.errorElement.append(...invalidStateArr.map(invalidState => createElement('p', {}, invalidState)));
                 this.errorElement.className = 'error active';
+            } else { // Else NO invalid messages to display
+                // Hide error
+                this.errorElement.className = 'error';
             }
         }
     }
@@ -131,7 +137,10 @@ import './styles.scss';
                 }
             }
 
-            return outputMessagesArr;
+            return {
+                valid: outputMessagesArr.length == 0,
+                invalidMsgArr: outputMessagesArr,
+            };
         }
 
         handleZipCodeValidation(inputElement) {
@@ -165,7 +174,10 @@ import './styles.scss';
                 }
             }
 
-            return outputMessagesArr;
+            return {
+                valid: outputMessagesArr.length == 0,
+                invalidMsgArr: outputMessagesArr,
+            };
         }
 
         handlePasswordValidation(inputElement) {
@@ -210,25 +222,31 @@ import './styles.scss';
                 invalidMessageArr.push('Must have at least one special character!');
             }
 
-            if (invalidMessageArr) {
-                inputElement.setCustomValidity(' ');
+            if (invalidMessageArr.length) {
+                inputElement.setCustomValidity('foo');
+            } else {
+                inputElement.setCustomValidity('');
             }
 
             this.updatePasswordRequiredStatesElement(validations);
 
-            console.log(invalidMessageArr);
-
-            return invalidMessageArr;
+            return {
+                valid: invalidMessageArr.length == 0,
+                invalidMsgArr: [],
+            };
         }
 
-        handlePasswordConfirmationValidaiton(passwordConfirmInputElement, passwordInputElement) {
+        handlePasswordConfirmationValidation(passwordConfirmInputElement, passwordInputElement) {
             let outputMessagesArr = [];
 
             if (passwordConfirmInputElement.value !== passwordInputElement.value) {
                 outputMessagesArr.push('Passwords do NOT match!');
             }
 
-            return outputMessagesArr;
+            return {
+                valid: outputMessagesArr.length == 0,
+                invalidMsgArr: outputMessagesArr,
+            };
         }
 
         /**
@@ -313,7 +331,7 @@ import './styles.scss';
                         valueMissing: 'Zipcode required!',
                     }, 
                     (passwordConfirmInputElement) => {
-                        return this.handlePasswordConfirmationValidaiton(
+                        return this.handlePasswordConfirmationValidation(
                             passwordConfirmInputElement, 
                             this.element.querySelector('input[name="password"]')
                         );
