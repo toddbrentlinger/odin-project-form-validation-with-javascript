@@ -1,6 +1,8 @@
 import { createElement } from './utilities';
 import './meyerReset.scss';
 import './styles.scss';
+import COUNTRIES from './countries';
+import { AutoCompleteInput } from './autoCompleteInput';
 
 (function() {
     class FormInput {
@@ -223,7 +225,7 @@ import './styles.scss';
             }
 
             if (invalidMessageArr.length) {
-                inputElement.setCustomValidity('foo');
+                inputElement.setCustomValidity('invalid');
             } else {
                 inputElement.setCustomValidity('');
             }
@@ -287,6 +289,7 @@ import './styles.scss';
 
             // Country
             const countryElement = this.element.querySelector('label[for="country"]');
+            new AutoCompleteInput(countryElement.querySelector('input'), COUNTRIES);
             if (countryElement) {
                 new FormInput(
                     countryElement, 
